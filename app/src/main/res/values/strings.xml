@@ -6,4 +6,41 @@
     <string name="search_prompt">Enter search query</string>
     <string name="image_title_label">Image title</string>
     <string name="title_activity_display">DisplayActivity</string>
+    <string name="settings_label">Settings</string>
+    <string name="title_activity_setting">SettingActivity</string>
+    <string name="save_label">Save</string>
+    <string name="site_filter_label">Site Filter</string>
+    <string name="image_type_label">Image Type</string>
+    <string name="color_filter_label">Color Filter</string>
+    <string name="image_size_label">Image Size</string>
+    <string name="advanced_options_label">Advanced search options</string>
+
+    <string-array name="image_size">
+        <item>small</item>
+        <item>medium</item>
+        <item>large</item>
+        <item>xlarge</item>
+    </string-array>
+
+    <string-array name="color_filter">
+        <item>black</item>
+        <item>blue</item>
+        <item>brown</item>
+        <item>gray</item>
+        <item>green</item>
+        <item>red</item>
+        <item>yellow</item>
+        <item>pink</item>
+        <item>purple</item>
+        <item>orange</item>
+        <item>white</item>
+        <item>teal</item>
+    </string-array>
+
+    <string-array name="image_type">
+        <item>face</item>
+        <item>photo</item>
+        <item>clipart</item>
+        <item>lineart</item>
+    </string-array>
 </resources>

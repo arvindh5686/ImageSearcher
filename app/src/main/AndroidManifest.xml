@@ -24,6 +24,10 @@
             android:name=".activities.DisplayActivity"
             android:label="@string/title_activity_display" >
         </activity>
+        <activity
+            android:name=".activities.SettingActivity"
+            android:label="@string/title_activity_setting" >
+        </activity>
     </application>
 
 </manifest>
