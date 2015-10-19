@@ -9,13 +9,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
-import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.walmartlabs.classwork.imagesearcher.R;
 import com.walmartlabs.classwork.imagesearcher.adapters.ImageResultsAdapter;
+import com.walmartlabs.classwork.imagesearcher.models.Filter;
 import com.walmartlabs.classwork.imagesearcher.models.Image;
-import com.walmartlabs.classwork.imagesearcher.models.Search;
 import com.walmartlabs.classwork.imagesearcher.net.ImageSearchClient;
 import com.walmartlabs.classwork.imagesearcher.utility.EndlessScrollListener;
 
@@ -28,6 +27,7 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 
 public class SearchActivity extends AppCompatActivity {
+
     private static final int SETTINGS_CODE = 1001;
     private EditText etQuery;
     private GridView gvResults;
@@ -38,12 +38,28 @@ public class SearchActivity extends AppCompatActivity {
     public static String colorFilter;
     public static String siteFilter;
     private ImageSearchClient client;
+    private JsonHttpResponseHandler handler;
+    private Filter filter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         client = new ImageSearchClient();
+        handler = new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                JSONArray resultsJson = null;
+                try {
+                    resultsJson = response.getJSONObject("responseData").getJSONArray("results");
+                    aImageResults.addAll(Image.fromJsonArray(resultsJson));
+                    aImageResults.notifyDataSetChanged();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                super.onSuccess(statusCode, headers, response);
+            }
+        };
 
         setupViews();
         imageResults = new ArrayList<Image>();
@@ -64,20 +80,6 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public boolean onLoadMore(int page, int totalItemsCount) {
                 if(page > 8) return false;
-                JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        JSONArray resultsJson = null;
-                        try {
-                            resultsJson = response.getJSONObject("responseData").getJSONArray("results");
-                            aImageResults.addAll(Image.fromJsonArray(resultsJson));
-                            aImageResults.notifyDataSetChanged();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        super.onSuccess(statusCode, headers, response);
-                    }
-                };
                 onImageSearch(null, page, handler);
                 return true;
             }
@@ -106,10 +108,7 @@ public class SearchActivity extends AppCompatActivity {
         if(id == R.id.menuSettings) {
             //onAdd(item);
             Intent intent = new Intent(SearchActivity.this, SettingActivity.class);
-            intent.putExtra("imageSize", imageSize);
-            intent.putExtra("imageType", imageType);
-            intent.putExtra("colorFilter", colorFilter);
-            intent.putExtra("siteFilter", siteFilter);
+            intent.putExtra("filter", filter);
             startActivityForResult(intent, SETTINGS_CODE);
         }
 
@@ -119,38 +118,19 @@ public class SearchActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if((SETTINGS_CODE == requestCode) && (resultCode == RESULT_OK)) {
-            imageSize = data.getStringExtra("imageSize");
-            imageType = data.getStringExtra("imageType");
-            colorFilter = data.getStringExtra("colorFilter");
-            siteFilter = data.getStringExtra("siteFilter");
-            Toast.makeText(SearchActivity.this, imageSize, Toast.LENGTH_SHORT).show();
+            filter = data.getParcelableExtra("filter");
         }
     }
 
     public void onImageSearch(View view) {
-        JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                JSONArray resultsJson = null;
-                try {
-                    resultsJson = response.getJSONObject("responseData").getJSONArray("results");
-                    aImageResults.clear();
-                    aImageResults.addAll(Image.fromJsonArray(resultsJson));
-                    aImageResults.notifyDataSetChanged();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                super.onSuccess(statusCode, headers, response);
-            }
-        };
-
+        aImageResults.clear();
         onImageSearch(view, 0, handler);
     }
 
     public void onImageSearch(View view, int page, JsonHttpResponseHandler handler) {
         String queryString = etQuery.getText().toString();
        // handler.onSuccess();
-        Search searchQuery = new Search(queryString, imageSize, imageType, colorFilter, siteFilter);
-        client.getImages(searchQuery, page, handler);
+        if (filter == null) filter = new Filter();
+        client.getImages(filter, queryString, page, handler);
     }
 }

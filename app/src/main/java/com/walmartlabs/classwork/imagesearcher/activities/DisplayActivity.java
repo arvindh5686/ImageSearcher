@@ -31,7 +31,6 @@ public class DisplayActivity extends AppCompatActivity {
 
             @Override
             public void onError() {
-                // ...
             }
         });
     }

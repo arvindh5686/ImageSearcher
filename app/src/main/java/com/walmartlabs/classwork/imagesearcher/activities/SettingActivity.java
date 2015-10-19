@@ -8,29 +8,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.walmartlabs.classwork.imagesearcher.R;
+import com.walmartlabs.classwork.imagesearcher.models.Filter;
 
 public class SettingActivity extends AppCompatActivity {
 
-    private String imageSize;
-    private String colorFilter;
-    private String imageType;
-    private String siteFilter;
-
+    private Filter filter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
         Intent i = getIntent();
-        imageSize = i.getStringExtra("imageSize");
-        imageType = i.getStringExtra("imageType");
-        colorFilter = i.getStringExtra("colorFilter");
-        siteFilter = i.getStringExtra("siteFilter");
-        EditText etSiteFilter = (EditText) findViewById(R.id.etSiteFilter);
-        etSiteFilter.setText(siteFilter);
+        filter = i.getParcelableExtra("filter");
+        if (filter == null) {filter = new Filter();}
         setupSpinners();
     }
 
@@ -40,41 +32,15 @@ public class SettingActivity extends AppCompatActivity {
                 R.array.image_size, android.R.layout.simple_spinner_item);
         aImageSizes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spImageSize.setAdapter(aImageSizes);
-
-        int pos = aImageSizes.getPosition(imageSize);
+        int pos = aImageSizes.getPosition(filter.getImageSize());
         spImageSize.setSelection(pos);
-
-        spImageSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                imageSize = parent.getItemAtPosition(position).toString();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
 
         Spinner spColorFilter = (Spinner) findViewById(R.id.spColorFilter);
         ArrayAdapter<CharSequence> aColorFilters = ArrayAdapter.createFromResource(this,
                 R.array.color_filter, android.R.layout.simple_spinner_item);
         aColorFilters.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spColorFilter.setAdapter(aColorFilters);
-
-        spColorFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                colorFilter = parent.getItemAtPosition(position).toString();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        pos = aColorFilters.getPosition(colorFilter);
+        pos = aColorFilters.getPosition(filter.getColorFilter());
         spColorFilter.setSelection(pos);
 
         Spinner spImageType = (Spinner) findViewById(R.id.spImageType);
@@ -82,11 +48,13 @@ public class SettingActivity extends AppCompatActivity {
                 R.array.image_type, android.R.layout.simple_spinner_item);
         aImageTypes.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spImageType.setAdapter(aImageTypes);
+        pos = aImageTypes.getPosition(filter.getImageType());
+        spImageType.setSelection(pos);
 
-        spImageType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spImageSize.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                imageType = parent.getItemAtPosition(position).toString();
+                filter.setImageSize(parent.getItemAtPosition(position).toString());
             }
 
             @Override
@@ -95,8 +63,29 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
-        pos = aImageTypes.getPosition(imageType);
-        spImageType.setSelection(pos);
+        spColorFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                filter.setColorFilter(parent.getItemAtPosition(position).toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spImageType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                filter.setImageType(parent.getItemAtPosition(position).toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     @Override
@@ -123,14 +112,7 @@ public class SettingActivity extends AppCompatActivity {
 
     public void onSave(View view) {
         Intent i = new Intent();
-        EditText etSiteFilter = (EditText) findViewById(R.id.etSiteFilter);
-        String siteFilter = etSiteFilter.getText().toString();
-
-        i.putExtra("imageSize", imageSize);
-        i.putExtra("imageType", imageType);
-        i.putExtra("colorFilter", colorFilter);
-        i.putExtra("siteFilter", siteFilter);
-
+        i.putExtra("filter", filter);
         setResult(RESULT_OK, i);
         finish();
     }
