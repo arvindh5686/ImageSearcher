@@ -40,6 +40,7 @@ public class ImageSearchClient {
     }
 
     public String generateQueryString(Filter filter, String queryString) {
+        if(filter == null) return queryString;
         if(filter.getImageSize() != null) queryString += "&imgsz=" + filter.getImageSize();
         if(filter.getImageType() != null) queryString += "&imgtype=" + filter.getImageType();
         if(filter.getColorFilter() != null) queryString += "&imgcolor=" + filter.getColorFilter();

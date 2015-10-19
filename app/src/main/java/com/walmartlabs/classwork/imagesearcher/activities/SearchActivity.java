@@ -1,14 +1,21 @@
 package com.walmartlabs.classwork.imagesearcher.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.walmartlabs.classwork.imagesearcher.R;
@@ -33,19 +40,26 @@ public class SearchActivity extends AppCompatActivity {
     private GridView gvResults;
     private ArrayList<Image> imageResults;
     private ImageResultsAdapter aImageResults;
-    public static String imageSize;
-    public static String imageType;
-    public static String colorFilter;
-    public static String siteFilter;
     private ImageSearchClient client;
     private JsonHttpResponseHandler handler;
     private Filter filter;
+    private String queryString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         client = new ImageSearchClient();
+
+        setupViews();
+    }
+
+    private void setupViews() {
+        gvResults = (GridView) findViewById(R.id.gvResults);
+        imageResults = new ArrayList<Image>();
+        aImageResults = new ImageResultsAdapter(this, imageResults);
+        gvResults.setAdapter(aImageResults);
+
         handler = new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -53,18 +67,18 @@ public class SearchActivity extends AppCompatActivity {
                 try {
                     resultsJson = response.getJSONObject("responseData").getJSONArray("results");
                     aImageResults.addAll(Image.fromJsonArray(resultsJson));
-                    aImageResults.notifyDataSetChanged();
+                    //   aImageResults.notifyDataSetChanged();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 super.onSuccess(statusCode, headers, response);
             }
-        };
 
-        setupViews();
-        imageResults = new ArrayList<Image>();
-        aImageResults = new ImageResultsAdapter(this, imageResults);
-        gvResults.setAdapter(aImageResults);
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+            }
+        };
 
         gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -80,22 +94,10 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public boolean onLoadMore(int page, int totalItemsCount) {
                 if(page > 8) return false;
-                onImageSearch(null, page, handler);
+                onImageSearch(page, handler);
                 return true;
             }
         });
-    }
-
-    private void setupViews() {
-        etQuery = (EditText) findViewById(R.id.etQuery);
-        gvResults = (GridView) findViewById(R.id.gvResults);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_search, menu);
-        return true;
     }
 
     @Override
@@ -116,21 +118,53 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_search, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                aImageResults.clear();
+                queryString = query;
+                onImageSearch(1, handler);
+                // perform query here
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                aImageResults.clear();
+               // queryString = newText;
+               // onImageSearch(1, handler);
+                return false;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if((SETTINGS_CODE == requestCode) && (resultCode == RESULT_OK)) {
             filter = data.getParcelableExtra("filter");
         }
     }
 
-    public void onImageSearch(View view) {
-        aImageResults.clear();
-        onImageSearch(view, 0, handler);
+    public void onImageSearch(int page, JsonHttpResponseHandler handler) {
+        if( !isNetworkAvailable() ) {
+            Toast.makeText(this, "No network available...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        client.getImages(filter, queryString, page, handler);
     }
 
-    public void onImageSearch(View view, int page, JsonHttpResponseHandler handler) {
-        String queryString = etQuery.getText().toString();
-       // handler.onSuccess();
-        if (filter == null) filter = new Filter();
-        client.getImages(filter, queryString, page, handler);
+    private Boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
     }
 }

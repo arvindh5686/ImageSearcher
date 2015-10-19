@@ -2,6 +2,7 @@ package com.walmartlabs.classwork.imagesearcher.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -67,6 +68,7 @@ public class Image implements Parcelable{
         try {
             // Deserialize json into object fields
             if (jsonObject.has("url")) {
+                Log.i("url", jsonObject.getString("url"));
                 image.setFullUrl(jsonObject.getString("url"));
             }
 
@@ -75,6 +77,7 @@ public class Image implements Parcelable{
             }
 
             image.title = jsonObject.has("title") ? jsonObject.getString("title") : "";
+            Log.i("title", image.title);
 
         } catch (JSONException e) {
             e.printStackTrace();
