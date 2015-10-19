@@ -1,5 +1,7 @@
 package com.walmartlabs.classwork.imagesearcher.net;
 
+import android.util.Log;
+
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.walmartlabs.classwork.imagesearcher.models.Search;
@@ -24,11 +26,14 @@ public class ImageSearchClient {
     }
 
     // Method for accessing the search API
-    public void getImages(final Search search, JsonHttpResponseHandler handler) {
+    public void getImages(final Search search, int page, JsonHttpResponseHandler handler) {
         try {
+            int start = page * 8;
             String url = getApiUrl("ajax/services/search/images?q=");
             String queryString = generateQueryString(search);
-            client.get(url + URLEncoder.encode(queryString, "utf-8") + "&v=1.0&rsz=8", handler);
+            Log.i("url", url + URLEncoder.encode(queryString, "utf-8") + "&v=1.0&rsz=8&start=" + start);
+            client.get(url + URLEncoder.encode(queryString, "utf-8") + "&v=1.0&rsz=8&start=" + page, handler);
+
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

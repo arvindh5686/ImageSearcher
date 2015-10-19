@@ -4,11 +4,13 @@
     android:orientation="vertical">
 
     <ImageView
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:id="@+id/ivImage"
         android:adjustViewBounds="true"
-        android:scaleType="fitXY"/>
+        android:scaleType="fitXY"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -16,5 +18,7 @@
         android:maxLines="2"
         android:ellipsize="end"
         android:text="@string/image_title_label"
-        android:id="@+id/tvTitle" />
+        android:id="@+id/tvTitle"
+        android:paddingBottom="20dp"
+        android:paddingLeft="10dp"/>
 </LinearLayout>

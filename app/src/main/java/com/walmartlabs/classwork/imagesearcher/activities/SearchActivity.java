@@ -17,6 +17,7 @@ import com.walmartlabs.classwork.imagesearcher.adapters.ImageResultsAdapter;
 import com.walmartlabs.classwork.imagesearcher.models.Image;
 import com.walmartlabs.classwork.imagesearcher.models.Search;
 import com.walmartlabs.classwork.imagesearcher.net.ImageSearchClient;
+import com.walmartlabs.classwork.imagesearcher.utility.EndlessScrollListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,11 +37,14 @@ public class SearchActivity extends AppCompatActivity {
     public static String imageType;
     public static String colorFilter;
     public static String siteFilter;
+    private ImageSearchClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+        client = new ImageSearchClient();
+
         setupViews();
         imageResults = new ArrayList<Image>();
         aImageResults = new ImageResultsAdapter(this, imageResults);
@@ -53,6 +57,29 @@ public class SearchActivity extends AppCompatActivity {
                 Image image = (Image) aImageResults.getItem(position);
                 i.putExtra("image", image);
                 startActivity(i);
+            }
+        });
+
+        gvResults.setOnScrollListener(new EndlessScrollListener() {
+            @Override
+            public boolean onLoadMore(int page, int totalItemsCount) {
+                if(page > 8) return false;
+                JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                        JSONArray resultsJson = null;
+                        try {
+                            resultsJson = response.getJSONObject("responseData").getJSONArray("results");
+                            aImageResults.addAll(Image.fromJsonArray(resultsJson));
+                            aImageResults.notifyDataSetChanged();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        super.onSuccess(statusCode, headers, response);
+                    }
+                };
+                onImageSearch(null, page, handler);
+                return true;
             }
         });
     }
@@ -101,15 +128,14 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     public void onImageSearch(View view) {
-        String queryString = etQuery.getText().toString();
         JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 JSONArray resultsJson = null;
                 try {
                     resultsJson = response.getJSONObject("responseData").getJSONArray("results");
-                    imageResults.clear();
-                    imageResults.addAll(Image.fromJsonArray(resultsJson));
+                    aImageResults.clear();
+                    aImageResults.addAll(Image.fromJsonArray(resultsJson));
                     aImageResults.notifyDataSetChanged();
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -117,9 +143,14 @@ public class SearchActivity extends AppCompatActivity {
                 super.onSuccess(statusCode, headers, response);
             }
         };
+
+        onImageSearch(view, 0, handler);
+    }
+
+    public void onImageSearch(View view, int page, JsonHttpResponseHandler handler) {
+        String queryString = etQuery.getText().toString();
        // handler.onSuccess();
-        ImageSearchClient client = new ImageSearchClient();
         Search searchQuery = new Search(queryString, imageSize, imageType, colorFilter, siteFilter);
-        client.getImages(searchQuery, handler);
+        client.getImages(searchQuery, page, handler);
     }
 }
