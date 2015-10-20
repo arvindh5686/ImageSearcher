@@ -41,6 +41,7 @@ http://i.imgur.com/aZsJU1R.gif
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
+
 ## Open-source libraries used
 
 - [Android Async HTTP](https://github.com/loopj/android-async-http) - Simple asynchronous HTTP requests with JSON parsing
