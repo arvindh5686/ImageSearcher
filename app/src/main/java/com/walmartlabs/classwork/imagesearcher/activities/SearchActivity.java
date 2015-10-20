@@ -51,7 +51,6 @@ public class SearchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         client = new ImageSearchClient();
-
         setupViews();
     }
 
@@ -93,7 +92,7 @@ public class SearchActivity extends AppCompatActivity {
         gvResults.setOnScrollListener(new EndlessScrollListener() {
             @Override
             public boolean onLoadMore(int page, int totalItemsCount) {
-                if(page > 8) return false;
+                if(page >= 8) return false;
                 onImageSearch(page);
                 return true;
             }
@@ -102,13 +101,9 @@ public class SearchActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         if(id == R.id.menuSettings) {
-            //onAdd(item);
             Intent intent = new Intent(SearchActivity.this, SettingActivity.class);
             intent.putExtra("filter", filter);
             startActivityForResult(intent, SETTINGS_CODE);
@@ -131,20 +126,16 @@ public class SearchActivity extends AppCompatActivity {
                 aImageResults.clear();
                 queryString = query;
                 onImageSearch(0);
-                // perform query here
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
                 aImageResults.clear();
-               // queryString = newText;
-               // onImageSearch(1, handler);
                 return false;
             }
         });
         return super.onCreateOptionsMenu(menu);
-
     }
 
     @Override

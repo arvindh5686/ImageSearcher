@@ -30,22 +30,24 @@ public class ImageSearchClient {
         try {
             int start = page * 8;
             String url = getApiUrl("ajax/services/search/images?q=");
-            String query = generateQueryString(filter, text);
-            Log.i("url", url + URLEncoder.encode(query, "utf-8") + "&v=1.0&rsz=8&start=" + start);
-            client.get(url + URLEncoder.encode(query, "utf-8") + "&v=1.0&rsz=8&start=" + start, handler);
+            String query = generateQueryString(filter, text, start);
+            Log.i("url", url + URLEncoder.encode(query, "utf-8"));
+            client.get(url + URLEncoder.encode(query, "utf-8"), handler);
 
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }
 
-    public String generateQueryString(Filter filter, String queryString) {
-        if(filter == null) return queryString;
-        if(filter.getImageSize() != null) queryString += "&imgsz=" + filter.getImageSize();
-        if(filter.getImageType() != null) queryString += "&imgtype=" + filter.getImageType();
-        if(filter.getColorFilter() != null) queryString += "&imgcolor=" + filter.getColorFilter();
-        if(filter.getSiteFilter() != null &&
-                ! filter.getSiteFilter().equalsIgnoreCase("")) queryString += "&as_sitesearch=" + filter.getSiteFilter();
+    public String generateQueryString(Filter filter, String queryString, int start) {
+        queryString += "&v=1.0&rsz=8&start=" + start;
+        if(filter != null) {
+            if(filter.getImageSize() != null) queryString += "&imgsz=" + filter.getImageSize();
+            if(filter.getImageType() != null) queryString += "&imgtype=" + filter.getImageType();
+            if(filter.getColorFilter() != null) queryString += "&imgcolor=" + filter.getColorFilter();
+            if(filter.getSiteFilter() != null &&
+                    ! filter.getSiteFilter().equalsIgnoreCase("")) queryString += "&as_sitesearch=" + filter.getSiteFilter();
+        }
 
         return queryString;
     }
