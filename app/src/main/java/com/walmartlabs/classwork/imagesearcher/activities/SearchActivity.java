@@ -44,6 +44,7 @@ public class SearchActivity extends AppCompatActivity {
     private JsonHttpResponseHandler handler;
     private Filter filter;
     private String queryString;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +68,6 @@ public class SearchActivity extends AppCompatActivity {
                 try {
                     resultsJson = response.getJSONObject("responseData").getJSONArray("results");
                     aImageResults.addAll(Image.fromJsonArray(resultsJson));
-                    //   aImageResults.notifyDataSetChanged();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -94,7 +94,7 @@ public class SearchActivity extends AppCompatActivity {
             @Override
             public boolean onLoadMore(int page, int totalItemsCount) {
                 if(page > 8) return false;
-                onImageSearch(page, handler);
+                onImageSearch(page);
                 return true;
             }
         });
@@ -123,13 +123,14 @@ public class SearchActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_search, menu);
         MenuItem searchItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                searchView.clearFocus();
                 aImageResults.clear();
                 queryString = query;
-                onImageSearch(1, handler);
+                onImageSearch(0);
                 // perform query here
                 return true;
             }
@@ -150,14 +151,19 @@ public class SearchActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if((SETTINGS_CODE == requestCode) && (resultCode == RESULT_OK)) {
             filter = data.getParcelableExtra("filter");
+            aImageResults.clear();
+            onImageSearch(0);
         }
     }
 
-    public void onImageSearch(int page, JsonHttpResponseHandler handler) {
+    public void onImageSearch(int page) {
+        if (queryString == null) return;
+
         if( !isNetworkAvailable() ) {
             Toast.makeText(this, "No network available...", Toast.LENGTH_SHORT).show();
             return;
         }
+
         client.getImages(filter, queryString, page, handler);
     }
 

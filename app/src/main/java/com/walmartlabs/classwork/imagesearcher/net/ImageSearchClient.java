@@ -32,7 +32,7 @@ public class ImageSearchClient {
             String url = getApiUrl("ajax/services/search/images?q=");
             String query = generateQueryString(filter, text);
             Log.i("url", url + URLEncoder.encode(query, "utf-8") + "&v=1.0&rsz=8&start=" + start);
-            client.get(url + URLEncoder.encode(query, "utf-8") + "&v=1.0&rsz=8&start=" + page, handler);
+            client.get(url + URLEncoder.encode(query, "utf-8") + "&v=1.0&rsz=8&start=" + start, handler);
 
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

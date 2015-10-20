@@ -9,18 +9,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/advanced_options_label"
-        android:id="@+id/tvSearchOptions"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="@string/image_size_label"
         android:id="@+id/tvImageSize"
-        android:layout_below="@+id/tvSearchOptions"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="40dp" />
@@ -50,13 +40,14 @@
         android:layout_height="wrap_content"
         android:text="@string/site_filter_label"
         android:id="@+id/tvSiteFilter"
-        android:layout_below="@+id/tvImageType"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="33dp" />
+        android:layout_below="@+id/spImageType"
+        android:layout_alignRight="@+id/tvImageType"
+        android:layout_alignEnd="@+id/tvImageType"
+        android:layout_alignLeft="@id/tvColorFilter"
+        android:paddingTop="30dp"/>
 
     <Spinner
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:id="@+id/spImageSize"
         android:layout_alignBaseline="@+id/tvImageSize"
@@ -65,7 +56,8 @@
         android:layout_marginLeft="34dp"
         android:layout_marginStart="34dp"
         android:layout_alignParentEnd="false"
-        android:layout_alignParentStart="false" />
+        android:layout_alignParentStart="false"
+        android:gravity="center"/>
 
     <Spinner
         android:layout_width="wrap_content"
@@ -73,23 +65,26 @@
         android:id="@+id/spColorFilter"
         android:layout_alignTop="@+id/tvColorFilter"
         android:layout_alignLeft="@+id/spImageSize"
-        android:layout_alignStart="@+id/spImageSize" />
+        android:layout_alignStart="@+id/spImageSize"
+        android:layout_alignEnd="@id/spImageSize" />
 
     <Spinner
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/spImageType"
         android:layout_alignTop="@+id/tvImageType"
-        android:layout_alignLeft="@+id/spColorFilter"
-        android:layout_alignStart="@+id/spColorFilter" />
+        android:layout_alignLeft="@+id/spImageSize"
+        android:layout_alignStart="@+id/spImageSize"
+        android:layout_alignEnd="@id/spImageSize"/>
 
     <EditText
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:id="@+id/etSiteFilter"
-        android:layout_alignTop="@+id/tvSiteFilter"
+        android:layout_alignBottom="@+id/tvSiteFilter"
         android:layout_alignLeft="@+id/spImageType"
-        android:layout_alignStart="@+id/spImageType" />
+        android:layout_alignStart="@+id/spImageType"
+        android:layout_alignEnd="@id/spImageType"/>
 
     <Button
         android:layout_width="wrap_content"

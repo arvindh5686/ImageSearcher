@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.walmartlabs.classwork.imagesearcher.R;
@@ -16,6 +17,7 @@ import com.walmartlabs.classwork.imagesearcher.models.Filter;
 public class SettingActivity extends AppCompatActivity {
 
     private Filter filter;
+    private EditText etSiteFilter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,6 +26,8 @@ public class SettingActivity extends AppCompatActivity {
         filter = i.getParcelableExtra("filter");
         if (filter == null) {filter = new Filter();}
         setupSpinners();
+        etSiteFilter = (EditText) findViewById(R.id.etSiteFilter);
+        etSiteFilter.setText(filter.getSiteFilter());
     }
 
     public void setupSpinners() {
@@ -101,7 +105,6 @@ public class SettingActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
@@ -112,6 +115,8 @@ public class SettingActivity extends AppCompatActivity {
 
     public void onSave(View view) {
         Intent i = new Intent();
+        String siteFilter = etSiteFilter.getText() != null ? etSiteFilter.getText().toString() : "";
+        filter.setSiteFilter(siteFilter);
         i.putExtra("filter", filter);
         setResult(RESULT_OK, i);
         finish();
